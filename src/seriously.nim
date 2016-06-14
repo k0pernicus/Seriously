@@ -93,6 +93,14 @@ proc scanContentFile(contentFile: File) =
    for line in lines contentFile:
      g_reminders.add(parseReminder(line))
 
+## Function to compare a deadline with the current time
+proc compareTime(deadline: Time): ReminderStatus =
+  let current_time = getTime()
+  case deadline - current_time:
+    of 0: ReminderStatus.Done
+    of 1..SOON_TIMING*60: ReminderStatus.Soon
+    else: ReminderStatus.Running
+  
 when isMainModule:
   let file = open("./test/test.txt", FileMode.fmRead, 1024)
   scanContentFile(file)
