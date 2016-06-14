@@ -1,1 +1,2 @@
-2016/06/14-21:00;Something;;TRUE
+2016/06/14-17:00;No! It works already :-p;;TRUE
+2016/06/14-17:30;Test2;;TRUE
