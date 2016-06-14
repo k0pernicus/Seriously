@@ -1,7 +1,11 @@
 import strutils
 import times
 
-type   
+const SOON_TIMING: int = 10
+
+type
+  ReminderStatus = enum
+    Done, Soon, Running
   ## A Place consists to give a location to your reminder
   Place = object
     address: string ## The address of your reminder (number, street...)
@@ -14,6 +18,7 @@ type
     message: string ## The reminder - a simple message to display
     place: Place ## The place to remind
     alert: bool ## A boolean to know if the reminder has to be display or no
+    status: ReminderStatus
 
 ## The list of reminders
 var g_reminders: seq[Reminder] = @[]
@@ -80,6 +85,7 @@ proc parseReminder(line: string): Reminder =
     message: local_reminder,
     place: local_place,
     alert: local_alert,
+    status: ReminderStatus.Running
   )
 
 ## Scan the content of the file - this file is the configuration file which contains events
