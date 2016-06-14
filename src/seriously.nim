@@ -1,3 +1,6 @@
+import asyncdispatch
+import notifications/macosx
+import os
 import strutils
 import times
 
@@ -97,11 +100,31 @@ proc scanContentFile(contentFile: File) =
 proc compareTime(deadline: Time): ReminderStatus =
   let current_time = getTime()
   case deadline - current_time:
-    of 0: ReminderStatus.Done
+    of low(int64)..0: ReminderStatus.Done
     of 1..SOON_TIMING*60: ReminderStatus.Soon
     else: ReminderStatus.Running
-  
+
+proc `$` (reminder: Reminder): string =
+  result = "* $1 - $2: $3".format(reminder.date, reminder.message, reminder.status)
+
+proc displayNotification(reminder: Reminder) =
+  var center = newNotificationCenter()
+  waitFor center.show($reminder.status, reminder.message)
+
 when isMainModule:
   let file = open("./test/test.txt", FileMode.fmRead, 1024)
   scanContentFile(file)
-  echo g_reminders
+  while true:
+    # 'mitems' is here to transform the immutable object 'reminder' to mutable 
+    echo $getTime()
+    for reminder in g_reminders.mitems:
+      let current_status = compareTime(timeInfoToTime(reminder.date))
+      if current_status != reminder.status:
+        reminder.status = current_status
+      if reminder.alert and (current_status == ReminderStatus.Done or current_status == ReminderStatus.Soon):
+        displayNotification(reminder)
+      echo $reminder
+
+    sleep(60000)
+    
+
